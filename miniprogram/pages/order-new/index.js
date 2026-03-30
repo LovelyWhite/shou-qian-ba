@@ -41,7 +41,7 @@ Page({
         const base = engine.getBaseUrl()
         const codeUrl = `${base}/applications/${id}/code.png`
         this.setData({ createdId: id, codeUrl })
-        wx.showToast({ title: '创建成功', icon: 'none' })
+        wx.showToast({ title: '创建成功', icon })
       })
       .catch((err) => {
         wx.showToast({ title: err && err.message ? err.message : '提交失败', icon: 'none' })

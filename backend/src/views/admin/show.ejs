@@ -2,30 +2,17 @@
 <%- include('../partials/nav') %>
 
 <main class="container">
-  <div class="row">
-  </div>
 
   <div class="card">
     <h2 class="h2">详情</h2>
-    <div class="kv">
-      <div class="kv__row"><div class="kv__k">提交时间</div><div class="kv__v"><%= formatDate(item.createdAt) %></div></div>
-      <div class="kv__row"><div class="kv__k">订单号</div><div class="kv__v"><%= item.orderNo || '' %></div></div>
-      <div class="kv__row"><div class="kv__k">状态</div><div class="kv__v"><%= statusText(item.status) %></div></div>
-      <div class="kv__row"><div class="kv__k">完成时间</div><div class="kv__v"><%= formatDate(item.completedAt) %></div></div>
-      <div class="kv__row"><div class="kv__k">商户名称</div><div class="kv__v"><%= item.merchantName %></div></div>
-      <div class="kv__row"><div class="kv__k">联系方式</div><div class="kv__v"><%= item.contact %></div></div>
-      <div class="kv__row"><div class="kv__k">省市区</div><div class="kv__v"><%= item.areaText %></div></div>
-      <div class="kv__row"><div class="kv__k">详细地址</div><div class="kv__v"><%= item.addressDetail %></div></div>
-      <div class="kv__row"><div class="kv__k">开户银行名称</div><div class="kv__v"><%= item.bankName %></div></div>
-      <div class="qrcode">
-      <img class="qrcode__img" src="/applications/<%= item._id %>/code.png" alt="" />
-    </div>
-   </div>
-  </div>
-
-  <div class="card">
-    <h2 class="h2">管理</h2>
     <form method="post" action="/admin/applications/<%= item._id %>">
+
+
+      <div class="form-row">
+        <label class="label" for="orderNo">订单号</label>
+        <input class="input" id="orderNo" name="orderNo" value="<%= item.orderNo || '' %>" placeholder="请输入订单号" />
+      </div>
+
       <div class="form-row">
         <label class="label" for="status">状态</label>
         <select class="select" id="status" name="status">
@@ -33,9 +20,48 @@
           <option value="completed" <%= item.status === 'completed' ? 'selected' : '' %>>已完成</option>
         </select>
       </div>
+
+      <div class="form-row">
+        <label class="label" for="merchantName">商户名称</label>
+        <input class="input" id="merchantName" name="merchantName" value="<%= item.merchantName || '' %>" placeholder="请输入商户名称" />
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="contact">联系方式</label>
+        <input class="input" id="contact" name="contact" value="<%= item.contact || '' %>" placeholder="请输入联系方式" />
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="areaCode">区域编码</label>
+        <input class="input" id="areaCode" name="areaCode" value="<%= item.areaCode || '' %>" placeholder="请输入区域编码" />
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="areaText">省市区</label>
+        <input class="input" id="areaText" name="areaText" value="<%= item.areaText || '' %>" placeholder="请输入省市区" />
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="addressDetail">详细地址</label>
+        <textarea class="textarea" id="addressDetail" name="addressDetail" rows="3" placeholder="请输入详细地址"><%= item.addressDetail || '' %></textarea>
+      </div>
+
+      <div class="form-row">
+        <label class="label" for="bankName">开户银行名称</label>
+        <input class="input" id="bankName" name="bankName" value="<%= item.bankName || '' %>" placeholder="请输入开户银行名称" />
+      </div>
       <div class="form-row">
         <label class="label" for="remark">备注</label>
         <textarea class="textarea" id="remark" name="remark" rows="4"><%= item.remark || '' %></textarea>
+      </div>
+
+      <div class="qrcode" style="margin: 12px 0 8px">
+        <img class="qrcode__img" src="/applications/<%= item._id %>/code.png" alt="" />
+      </div>
+      <div class="kv" style="margin-bottom:16px">
+        <div class="kv__row"><div class="kv__k">创建时间</div><div class="kv__v"><%= formatDate(item.createdAt) %></div></div>
+        <div class="kv__row"><div class="kv__k">更新时间</div><div class="kv__v"><%= formatDate(item.updatedAt) %></div></div>
+        <div class="kv__row"><div class="kv__k">完成时间</div><div class="kv__v"><%= formatDate(item.completedAt) %></div></div>
       </div>
       <div class="form-actions">
         <button class="btn" type="submit">保存</button>
@@ -46,6 +72,7 @@
 
   <div class="card">
     <h2 class="h2">上传材料</h2>
+
 
     <%
       const groups = [

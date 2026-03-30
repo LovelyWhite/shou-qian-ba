@@ -23,11 +23,31 @@ function statusText(status) {
 
 router.get('/applications', async (req, res, next) => {
   try {
+    const rawPage = req.query && req.query.page ? Number(req.query.page) : 1
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
+    const pageSize = 10
+
+    const total = await Application.countDocuments()
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+    const safePage = Math.min(page, totalPages)
+
     const items = await Application.find()
       .sort({ createdAt: -1 })
-      .limit(500)
+      .skip((safePage - 1) * pageSize)
+      .limit(pageSize)
       .lean()
-    res.render('admin/index', { items, formatDate, statusText })
+
+    res.render('admin/index', {
+      items,
+      formatDate,
+      statusText,
+      pagination: {
+        page: safePage,
+        pageSize,
+        total,
+        totalPages,
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -49,7 +69,7 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
     const sheet = workbook.addWorksheet('申请列表', { views: [{ state: 'frozen', ySplit: 1 }] })
     sheet.columns = [
       { header: '订单号', key: 'orderNo', width: 20 },
-      { header: '提交时间', key: 'createdAt', width: 20 },
+      { header: '更新时间', key: 'updatedAt', width: 20 },
       { header: '商户名称', key: 'merchantName', width: 20 },
       { header: '联系方式', key: 'contact', width: 16 },
       { header: '省市区', key: 'areaText', width: 18 },
@@ -72,7 +92,7 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
 
       const row = sheet.addRow({
         orderNo: item.orderNo || '',
-        createdAt: formatDate(item.createdAt),
+        updatedAt: formatDate(item.updatedAt),
         merchantName: item.merchantName || '',
         contact: item.contact || '',
         areaText: item.areaText || '',
@@ -152,11 +172,27 @@ router.get('/applications/:id', async (req, res, next) => {
 router.post('/applications/:id', async (req, res, next) => {
   try {
     const id = req.params.id
-    const remark = String((req.body && req.body.remark) || '').trim()
-    const status = (req.body && req.body.status) === 'completed' ? 'completed' : 'pending'
+    const body = req.body || {}
+    const remark = String(body.remark || '').trim()
+    const orderNo = String(body.orderNo || '').trim()
+    const merchantName = String(body.merchantName || '').trim()
+    const contact = String(body.contact || '').trim()
+    const areaCode = String(body.areaCode || '').trim()
+    const areaText = String(body.areaText || '').trim()
+    const addressDetail = String(body.addressDetail || '').trim()
+    const bankName = String(body.bankName || '').trim()
+    const status = body.status === 'completed' ? 'completed' : 'pending'
+
     const update = {
+      orderNo,
       remark,
       status,
+      merchantName,
+      contact,
+      areaCode,
+      areaText,
+      addressDetail,
+      bankName,
       completedAt: status === 'completed' ? new Date() : null,
     }
 

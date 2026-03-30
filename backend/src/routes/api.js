@@ -39,6 +39,7 @@ async function createApplication(req, res, next) {
   try {
     const body = req.body || {}
     const id = body.id ? String(body.id) : ''
+    const now = new Date()
 
     const merchantName = String(body.merchantName || '').trim()
     const contact = String(body.contact || '').trim()
@@ -70,7 +71,7 @@ async function createApplication(req, res, next) {
       bankName,
       files: body.files || {},
       status: 'completed',
-      completedAt: new Date(),
+      completedAt: now,
       meta: {
         ip: req.ip,
         userAgent: req.get('user-agent') || '',
@@ -78,13 +79,15 @@ async function createApplication(req, res, next) {
     }
 
     if (id) {
-      const doc = await Application.findByIdAndUpdate(id, payload, {
-        new: true,
-      })
-      if (!doc) {
+      const existing = await Application.findById(id)
+      if (!existing) {
         res.status(404).json({ error: '订单不存在' })
         return
       }
+
+      const doc = await Application.findByIdAndUpdate(id, payload, {
+        new: true,
+      })
       res.json({ id: doc._id })
       return
     }

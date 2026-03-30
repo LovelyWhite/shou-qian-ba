@@ -14,6 +14,7 @@ const ApplicationSchema = new mongoose.Schema(
     orderNo: { type: String, trim: true, default: '' },
     status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
     remark: { type: String, trim: true, default: '' },
+    submittedAt: { type: Date, default: null },
     completedAt: { type: Date, default: null },
     merchantName: { type: String, trim: true, default: '' },
     contact: { type: String, trim: true, default: '' },

@@ -160,7 +160,7 @@ Page({
       .submitApply(payload)
       .then(() => {
         wx.hideLoading()
-        wx.showToast({ title: '提交成功', icon: 'none' })
+        wx.navigateBack()
       })
       .catch((err) => {
         wx.hideLoading()

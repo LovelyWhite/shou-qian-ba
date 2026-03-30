@@ -14,7 +14,7 @@
       <thead>
         <tr>
           <th>订单号</th>
-          <th>提交时间</th>
+          <th>更新时间</th>
           <th>商户名称</th>
           <th>联系方式</th>
           <th>经营地址</th>
@@ -32,7 +32,7 @@
           <% items.forEach(function(item) { %>
             <tr>
               <td><%= item.orderNo || '' %></td>
-              <td><%= formatDate(item.createdAt) %></td>
+              <td><%= formatDate(item.updatedAt) %></td>
               <td><%= item.merchantName %></td>
               <td><%= item.contact %></td>
               <td><%= item.areaText %><%= item.addressDetail ? ' ' + item.addressDetail : '' %></td>
@@ -54,6 +54,26 @@
       </tbody>
     </table>
   </div>
+
+  <% if (pagination && pagination.totalPages > 1) { %>
+    <div class="row" style="margin-top:12px">
+      <div class="row__actions" style="gap:8px;align-items:center">
+        <span class="muted">共 <%= pagination.total %> 条，第 <%= pagination.page %> / <%= pagination.totalPages %> 页</span>
+
+        <% if (pagination.page > 1) { %>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page - 1 %>">上一页</a>
+        <% } else { %>
+          <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">上一页</span>
+        <% } %>
+
+        <% if (pagination.page < pagination.totalPages) { %>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page + 1 %>">下一页</a>
+        <% } else { %>
+          <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">下一页</span>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
 </main>
 
 <div class="img-preview" id="imgPreview" aria-hidden="true">
