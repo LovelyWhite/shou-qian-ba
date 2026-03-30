@@ -1,0 +1,148 @@
+<%- include('../partials/head', { title: '申请详情' }) %>
+<%- include('../partials/nav') %>
+
+<main class="container">
+  <div class="row">
+  </div>
+
+  <div class="card">
+    <h2 class="h2">详情</h2>
+    <div class="kv">
+      <div class="kv__row"><div class="kv__k">提交时间</div><div class="kv__v"><%= formatDate(item.createdAt) %></div></div>
+      <div class="kv__row"><div class="kv__k">订单号</div><div class="kv__v"><%= item.orderNo || '' %></div></div>
+      <div class="kv__row"><div class="kv__k">状态</div><div class="kv__v"><%= statusText(item.status) %></div></div>
+      <div class="kv__row"><div class="kv__k">完成时间</div><div class="kv__v"><%= formatDate(item.completedAt) %></div></div>
+      <div class="kv__row"><div class="kv__k">商户名称</div><div class="kv__v"><%= item.merchantName %></div></div>
+      <div class="kv__row"><div class="kv__k">联系方式</div><div class="kv__v"><%= item.contact %></div></div>
+      <div class="kv__row"><div class="kv__k">省市区</div><div class="kv__v"><%= item.areaText %></div></div>
+      <div class="kv__row"><div class="kv__k">详细地址</div><div class="kv__v"><%= item.addressDetail %></div></div>
+      <div class="kv__row"><div class="kv__k">开户银行名称</div><div class="kv__v"><%= item.bankName %></div></div>
+      <div class="qrcode">
+      <img class="qrcode__img" src="/admin/applications/<%= item._id %>/code.png" alt="" />
+    </div>
+   </div>
+  </div>
+
+  <div class="card">
+    <h2 class="h2">管理</h2>
+    <form method="post" action="/admin/applications/<%= item._id %>">
+      <div class="form-row">
+        <label class="label" for="status">状态</label>
+        <select class="select" id="status" name="status">
+          <option value="pending" <%= item.status === 'pending' ? 'selected' : '' %>>未完成</option>
+          <option value="completed" <%= item.status === 'completed' ? 'selected' : '' %>>已完成</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="label" for="remark">备注</label>
+        <textarea class="textarea" id="remark" name="remark" rows="4"><%= item.remark || '' %></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="submit">保存</button>
+        <button class="btn btn--danger" type="submit" style="margin-left:8px" formaction="/admin/applications/<%= item._id %>/delete" formmethod="post" onclick="return confirm('确认删除？')">删除</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 class="h2">上传材料</h2>
+
+    <%
+      const groups = [
+        ['身份证人像面', item.files && item.files.idCardFront],
+        ['身份证国徽面', item.files && item.files.idCardBack],
+        ['银行卡正面', item.files && item.files.bankCard],
+        ['店铺门头照', item.files && item.files.shopFront],
+        ['店铺内景照', item.files && item.files.shopInside],
+        ['营业执照', item.files && item.files.license],
+      ]
+
+      function isImageUrl(url) {
+        return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url || '')
+      }
+    %>
+
+    <% groups.forEach(function(group) { %>
+      <div class="file-group">
+        <div class="file-group__title"><%= group[0] %></div>
+        <div class="file-grid">
+          <% const list = Array.isArray(group[1]) ? group[1] : [] %>
+          <% if (list.length === 0) { %>
+            <div class="muted">未上传</div>
+          <% } else { %>
+            <% list.forEach(function(f) { %>
+              <% const isImg = isImageUrl(f.url) %>
+              <div class="file-item">
+                <a class="js-image-link" href="<%= f.url %>" <%= isImg ? '' : 'target="_blank"' %> rel="noreferrer" data-is-image="<%= isImg ? '1' : '0' %>">
+                  <% if (isImg) { %>
+                    <img class="thumb" src="<%= f.url %>" alt="" />
+                  <% } else { %>
+                    <div class="thumb thumb--file">文件</div>
+                  <% } %>
+                </a>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</main>
+
+<div class="img-preview" id="imgPreview" aria-hidden="true">
+  <div class="img-preview__backdrop"></div>
+  <div class="img-preview__panel" role="dialog" aria-modal="true">
+    <img class="img-preview__img" id="imgPreviewImg" alt="" />
+  </div>
+</div>
+
+<style>
+  .img-preview { position: fixed; inset: 0; display: none; z-index: 1000; }
+  .img-preview.is-open { display: block; }
+  .img-preview__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); }
+  .img-preview__panel { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+  .img-preview__img { max-width: 100%; max-height: 100%; object-fit: contain; background: #fff; border-radius: 8px; }
+</style>
+
+<script>
+  (function () {
+    var root = document.getElementById('imgPreview')
+    var img = document.getElementById('imgPreviewImg')
+    if (!root || !img) return
+
+    function open(url) {
+      img.src = url
+      root.classList.add('is-open')
+      root.setAttribute('aria-hidden', 'false')
+      document.body.style.overflow = 'hidden'
+    }
+
+    function close() {
+      root.classList.remove('is-open')
+      root.setAttribute('aria-hidden', 'true')
+      img.removeAttribute('src')
+      document.body.style.overflow = ''
+    }
+
+    document.addEventListener('click', function (e) {
+      var target = e.target
+      var link = target && target.closest ? target.closest('a.js-image-link') : null
+      if (link && link.getAttribute('data-is-image') === '1') {
+        e.preventDefault()
+        open(link.getAttribute('href'))
+        return
+      }
+
+      if (root.classList.contains('is-open') && root.contains(target)) {
+        e.preventDefault()
+        close()
+      }
+    })
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && root.classList.contains('is-open')) close()
+    })
+  })()
+</script>
+
+<%- include('../partials/foot') %>

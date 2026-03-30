@@ -1,0 +1,60 @@
+<scroll-view class="scrollarea" scroll-y>
+  <view class="page">
+    <swiper
+      class="banner-swiper"
+      indicator-dots
+      autoplay
+      circular
+      interval="3000"
+      duration="500"
+    >
+      <swiper-item>
+        <image class="banner-image" src="/images/about1.jpg" mode="aspectFit"></image>
+      </swiper-item>
+      <swiper-item>
+        <image class="banner-image" src="/images/about2.jpg" mode="aspectFit"></image>
+      </swiper-item>
+    </swiper>
+
+    <view class="section">
+      <view class="section-subtitle">
+        <view class="line line-left"></view>
+        <text>关于我们</text>
+        <view class="line line-right"></view>
+      </view>
+      <view class="about-content">
+        <view class="p">
+          <text>收钱吧成立于2013年，以“服务千万商家，全能生意帮手”为公司使命，现已成为国内领先的数字化门店综合服务商。收钱吧通过网络和数据的力量，为商家提供专业的移动支付收款、营销管理软件、广告、供应链、共享充电宝、商家社区等多种服务，全面解决线下商家的开店需求。</text>
+        </view>
+        <view class="p">
+          <text>目前，收钱吧服务网络已覆盖中国境内所有城市（含港澳），累计服务人次达到数百亿级规模，为线下近900万实体商家提供服务。从夫妻店到国际连锁品牌，收钱吧的身影遍布大江南北，深入大街小巷。</text>
+        </view>
+        <view class="p">
+          <text>收钱吧总部位于上海，在北京、广州、深圳、杭州、重庆、武汉、长沙、成都、南京、福州等全国约50个城市设有分公司，全国服务团队人数超10000人。公司重视产品创新，在上海、苏州设有研发中心，核心团队成员拥有多年企业服务行业从业经验。</text>
+        </view>
+      </view>
+    </view>
+    <view class="section">
+      <view class="section-subtitle">
+        <view class="line line-left"></view>
+        <text>新闻资讯</text>
+        <view class="line line-right"></view>
+      </view>
+      <view class="news-list">
+        <view wx:if="{{loadingNews}}" class="news-status">加载中...</view>
+        <view wx:elif="{{newsError}}" class="news-status">{{newsError}}</view>
+        <block wx:else>
+          <block wx:for="{{news}}" wx:key="id">
+            <view class="news-card" bindtap="openNews" data-url="{{item.url}}" data-title="{{item.title}}">
+              <view class="news-body">
+                <view class="news-title">{{item.title}}</view>
+                <view wx:if="{{item.date}}" class="news-meta">{{item.date}}</view>
+              </view>
+              <image wx:if="{{item.cover}}" class="news-cover" src="{{item.cover}}" mode="aspectFill"></image>
+            </view>
+          </block>
+        </block>
+      </view>
+    </view>
+  </view>
+</scroll-view>

@@ -1,0 +1,5 @@
+node_modules/
+miniProgram_npm/
+.env
+uploads/
+backend/.env

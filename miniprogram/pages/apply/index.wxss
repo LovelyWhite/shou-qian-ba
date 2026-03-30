@@ -1,0 +1,118 @@
+page {
+  height: 100vh;
+  background: #fffs;
+}
+
+.scrollarea {
+  height: 100%;
+}
+
+.banner {
+  width: 100%;
+  display: block;
+}
+
+.section {
+  margin-top: 20rpx;
+  padding: 0 24rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333333;
+  margin: 24rpx 0 8rpx;
+}
+
+.section-subtitle {
+  font-size: 29rpx;
+  color: #262626;
+  text-align: center;
+  margin: 24rpx auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.line {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.15);
+  width: 30rpx;
+  flex: none;
+}
+
+.line-left {
+  margin-right: 10rpx;
+}
+
+.line-right {
+  margin-left: 10rpx;
+}
+
+.required {
+  color: #ee0a24;
+}
+
+.upload-row {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx 20rpx 24rpx;
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
+}
+
+.upload-label {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 16rpx;
+}
+
+.upload-tips {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #8c8c8c;
+  line-height: 36rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.upload-tip-icon {
+  margin-right: 8rpx;
+  color: #8c8c8c;
+}
+
+.agreement {
+  background: #ffffff;
+  border-radius: 16rpx;
+  font-size: 25rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.link {
+  color: #1989fa;
+}
+
+.submit-wrap {
+  margin-top: 24rpx;
+}
+
+.submit-btn {
+  width: 640rpx;
+  height: 96rpx;
+  margin: 0 auto;
+  padding: 0;
+  border-radius: 999rpx;
+  background: #ff9800;
+  color: #ffffff;
+  font-size: 36rpx;
+  font-weight: 600;
+  line-height: 96rpx;
+}
+
+.submit-btn[disabled] {
+  opacity: 0.6;
+}

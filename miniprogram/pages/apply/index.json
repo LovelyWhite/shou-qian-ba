@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "申请开通",
+  "usingComponents": {
+    "van-area": "@vant/weapp/area/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-checkbox": "@vant/weapp/checkbox/index",
+    "van-field": "@vant/weapp/field/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-uploader": "@vant/weapp/uploader/index"
+  }
+}

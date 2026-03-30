@@ -1,0 +1,19 @@
+<scroll-view class="scrollarea" scroll-y>
+  <view class="page">
+    <view class="section">
+      <view class="section-subtitle">
+        <view class="line line-left"></view>
+        <text>产品展示</text>
+        <view class="line line-right"></view>
+      </view>
+    </view>
+    <view class="grid">
+      <block wx:for="{{ items }}" wx:key="title">
+        <view class="card" catchtap="openProduct" data-url="{{ item.url }}" data-title="{{ item.title }}">
+          <image class="thumb" src="{{ item.image }}" mode="aspectFill"></image>
+          <view class="title">{{ item.title }}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+</scroll-view>

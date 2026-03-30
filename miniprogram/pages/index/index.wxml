@@ -1,0 +1,33 @@
+<scroll-view class="scrollarea" scroll-y>
+  <view class="page">
+    <swiper
+      class="banner-swiper"
+      indicator-dots
+      autoplay
+      circular
+      interval="3000"
+      duration="500"
+    >
+      <swiper-item>
+        <image class="banner-image" src="/images/banner1.jpg" mode="aspectFill"></image>
+      </swiper-item>
+      <swiper-item>
+        <image class="banner-image" src="/images/banner2.jpg" mode="aspectFill"></image>
+      </swiper-item>
+      <swiper-item>
+        <image class="banner-image" src="/images/banner3.jpg" mode="aspectFill"></image>
+      </swiper-item>
+      <swiper-item>
+        <image class="banner-image" src="/images/banner4.jpg" mode="aspectFill"></image>
+      </swiper-item>
+    </swiper>
+
+    <view class="apply-section">
+      <button class="apply-btn" bindtap="onApply">申请开通</button>
+    </view>
+
+    <view class="detail-wrap">
+      <image class="detail-image" src="/images/detail.jpg" mode="widthFix"></image>
+    </view>
+  </view>
+</scroll-view>

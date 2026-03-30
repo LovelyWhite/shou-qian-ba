@@ -1,0 +1,153 @@
+<scroll-view class="scrollarea" scroll-y>
+
+  <image class="banner" src="/images/banner1.jpg" mode="widthFix"></image>
+
+  <view class="section">
+    <view class="section-subtitle">
+      <view class="line line-left"></view>
+      <text>收钱吧注册资料</text>
+      <view class="line line-right"></view>
+    </view>
+    <van-cell-group>
+      <van-field
+        value="{{ form.merchantName }}"
+        label="商户名称"
+        required
+        placeholder="请输入商户名称"
+        bind:change="onFieldChange"
+        data-key="merchantName"
+      />
+      <van-field
+        value="{{ form.contact }}"
+        label="联系方式"
+        required
+        placeholder="请输入联系方式"
+        type="tel"
+        bind:change="onFieldChange"
+        data-key="contact"
+      />
+      <van-field
+        value="{{ form.areaText }}"
+        label="经营地址"
+        required
+        placeholder="请选择省市区"
+        readonly
+        is-link
+        bind:click-input="openArea"
+        bind:tap="openArea"
+      />
+      <van-field
+        value="{{ form.addressDetail }}"
+        label="详细地址"
+        required
+        placeholder="请输入详细地址"
+        bind:change="onFieldChange"
+        data-key="addressDetail"
+      />
+      <van-field
+        value="{{ form.bankName }}"
+        label="开户银行名称"
+        required
+        placeholder="请输入开户银行名称"
+        bind:change="onFieldChange"
+        data-key="bankName"
+      />
+    </van-cell-group>
+  </view>
+
+  <view class="section">
+    <view class="upload-row">
+      <view class="upload-label">身份证人像面 <text class="required">*</text></view>
+      <van-uploader
+        file-list="{{ fileLists.idCardFront }}"
+        max-count="1"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        data-key="idCardFront"
+      />
+    </view>
+
+    <view class="upload-row">
+      <view class="upload-label">身份证国徽面 <text class="required">*</text></view>
+      <van-uploader
+        file-list="{{ fileLists.idCardBack }}"
+        max-count="1"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        data-key="idCardBack"
+      />
+    </view>
+
+    <view class="upload-row">
+      <view class="upload-label">银行卡正面 <text class="required">*</text></view>
+      <van-uploader
+        file-list="{{ fileLists.bankCard }}"
+        max-count="1"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        data-key="bankCard"
+      />
+    </view>
+
+    <view class="upload-row">
+      <view class="upload-label">店铺门头照 <text class="required">*</text></view>
+      <van-uploader
+        file-list="{{ fileLists.shopFront }}"
+        max-count="3"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        multiple
+        data-key="shopFront"
+      />
+      <view class="upload-tips">
+        <van-icon name="warning-o" class="upload-tip-icon" />
+        <text>若无店铺门头照，请上传摊位三张不同角度照片</text>
+      </view>
+    </view>
+
+    <view class="upload-row">
+      <view class="upload-label">店铺内景照 <text class="required">*</text></view>
+      <van-uploader
+        file-list="{{ fileLists.shopInside }}"
+        max-count="1"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        data-key="shopInside"
+      />
+    </view>
+
+    <view class="upload-row">
+      <view class="upload-label">营业执照</view>
+      <van-uploader
+        file-list="{{ fileLists.license }}"
+        max-count="1"
+        bind:after-read="onAfterRead"
+        bind:delete="onDelete"
+        data-key="license"
+      />
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="agreement">
+      <van-checkbox value="{{ agreed }}" bind:change="onAgreeChange">
+        我已阅读并同意
+        <text class="link" catchtap="openAgreement">《用户服务协议》</text>
+        及
+        <text class="link" catchtap="openPrivacy">《隐私政策》</text>
+      </van-checkbox>
+    </view>
+    <view class="submit-wrap">
+      <button class="submit-btn" disabled="{{ !agreed }}" bindtap="onSubmit">马上提交</button>
+    </view>
+  </view>
+
+  <van-popup show="{{ showArea }}" position="bottom" round bind:close="closeArea">
+    <van-area
+      area-list="{{ areaList }}"
+      value="{{ form.areaCode }}"
+      bind:confirm="onAreaConfirm"
+      bind:cancel="closeArea"
+    />
+  </van-popup>
+</scroll-view>
