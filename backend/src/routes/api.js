@@ -5,7 +5,6 @@ const express = require('express')
 const multer = require('multer')
 
 const Application = require('../models/Application')
-
 const router = express.Router()
 
 const storage = multer.diskStorage({

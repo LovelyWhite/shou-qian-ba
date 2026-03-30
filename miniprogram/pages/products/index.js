@@ -6,32 +6,32 @@ Page({
       {
         title: '收钱吧云音响',
         image: '/images/boxPro.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/boxPro.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/smart-qr-pro',
       },
       {
         title: '收钱吧云打印机',
         image: '/images/print.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/print.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/cloud-printer-1',
       },
       {
         title: '收钱吧扫码王',
         image: '/images/saomawang4.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/product/saomawang4',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/qr-master-4',
       },
       {
         title: '收银机',
         image: '/images/cashTools.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/cashTools.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/smart-cashier-system',
       },
       {
-        title: '手持收银机',
+        title: '智慧POS',
         image: '/images/wisdompos.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/wisdompos.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/intelligent-pos',
       },
       {
-        title: '扫码点餐',
+        title: '餐饮SaaS',
         image: '/images/pickmoney.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/pickmoney.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/product/restaurant-saas-platform',
       },
       {
         title: '数电发票',
@@ -39,9 +39,9 @@ Page({
         url: 'https://task.suxitech.cn/shouqianba/zh/product/e-invoicing',
       },
       {
-        title: '收银一体机',
+        title: '智能POS',
         image: '/images/pos.jpg',
-        url: 'https://task.suxitech.cn/shouqianba/pos.html',
+        url: 'https://task.suxitech.cn/shouqianba/zh/hardware/smart-pos',
       },
     ],
   },

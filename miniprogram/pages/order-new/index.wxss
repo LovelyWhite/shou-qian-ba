@@ -1,0 +1,26 @@
+.scrollarea {
+  height: 100vh;
+}
+.section {
+  padding: 12px;
+}
+.submit-wrap {
+  padding: 12px 0;
+}
+.submit-btn {
+  width: 100%;
+  height: 44px;
+  line-height: 44px;
+  background-color: #1989fa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+.result-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.code-image {
+  width: 100%;
+}

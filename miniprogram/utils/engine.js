@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = 'http://192.168.8.231:3000'
+const DEFAULT_BASE_URL = 'https://task.suxitech.cn'
 
 let baseUrl = DEFAULT_BASE_URL
 
@@ -91,10 +91,23 @@ function submitApply(payload) {
   })
 }
 
+function createAdminApplication(payload) {
+  return request({
+    url: '/admin/applications',
+    method: 'POST',
+    data: payload,
+    header: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
 module.exports = {
   setBaseUrl,
   getBaseUrl,
   request,
   uploadFile,
   submitApply,
+  createAdminApplication,
 }

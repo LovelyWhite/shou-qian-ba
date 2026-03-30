@@ -68,7 +68,7 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
 
     for (const item of items) {
       const detailUrl = `${baseUrl}/admin/applications/${item._id}`
-      const codeUrl = `${baseUrl}/admin/applications/${item._id}/code.png`
+      const codeUrl = `${baseUrl}/applications/${item._id}/code.png`
 
       const row = sheet.addRow({
         orderNo: item.orderNo || '',
@@ -122,6 +122,13 @@ router.post('/applications', async (req, res, next) => {
       status: 'pending',
       completedAt: null,
     })
+
+    const accept = String(req.get('accept') || '')
+    const wantsJson = accept.includes('application/json') || req.query.format === 'json'
+    if (wantsJson) {
+      res.json({ id: doc._id })
+      return
+    }
 
     res.redirect(`/admin/applications/${doc._id}`)
   } catch (err) {

@@ -18,5 +18,18 @@
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true
   },
-  "libVersion": "3.15.0"
+  "libVersion": "3.15.0",
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/order-new/index",
+          "pathName": "pages/order-new/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  }
 }

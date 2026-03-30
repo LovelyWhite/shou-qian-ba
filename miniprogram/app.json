@@ -4,7 +4,8 @@
     "pages/products/index",
     "pages/about/index",
     "pages/apply/index",
-    "pages/webview/index"
+    "pages/webview/index",
+    "pages/order-new/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

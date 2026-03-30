@@ -37,8 +37,8 @@
               <td><%= item.contact %></td>
               <td><%= item.areaText %><%= item.addressDetail ? ' ' + item.addressDetail : '' %></td>
               <td>
-                <a class="js-image-link" href="/admin/applications/<%= item._id %>/code.png" rel="noreferrer" data-is-image="1">
-                  <img src="/admin/applications/<%= item._id %>/code.png" alt="" style="width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px" />
+                <a class="js-image-link" href="/applications/<%= item._id %>/code.png" rel="noreferrer" data-is-image="1">
+                  <img src="/applications/<%= item._id %>/code.png" alt="" style="width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px" />
                 </a>
               </td>
               <td><%= statusText(item.status) %></td>

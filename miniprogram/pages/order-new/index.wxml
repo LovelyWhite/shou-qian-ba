@@ -1,0 +1,33 @@
+<scroll-view class="scrollarea" scroll-y>
+  <view class="section">
+    <van-cell-group>
+      <van-field
+        value="{{ form.orderNo }}"
+        label="订单号"
+        required
+        placeholder="请输入订单号"
+        bind:change="onFieldChange"
+        data-key="orderNo"
+      />
+      <van-field
+        value="{{ form.remark }}"
+        label="备注"
+        placeholder="请输入备注"
+        type="textarea"
+        bind:change="onFieldChange"
+        data-key="remark"
+      />
+    </van-cell-group>
+  </view>
+
+  <view class="section">
+    <view class="submit-wrap">
+      <button class="submit-btn" bindtap="onSubmit">创建记录并生成二维码</button>
+    </view>
+  </view>
+
+  <view wx:if="{{ codeUrl }}" class="section">
+    <view class="result-title">小程序码</view>
+    <image class="code-image" src="{{ codeUrl }}" mode="widthFix"></image>
+  </view>
+</scroll-view>
