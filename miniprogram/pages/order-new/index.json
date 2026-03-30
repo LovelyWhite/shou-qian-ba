@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "新建订单",
+  "enableShareAppMessage": true,
   "usingComponents": {
     "van-button": "@vant/weapp/button/index",
     "van-cell-group": "@vant/weapp/cell-group/index",

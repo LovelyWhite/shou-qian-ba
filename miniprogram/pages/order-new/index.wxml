@@ -28,6 +28,6 @@
 
   <view wx:if="{{ codeUrl }}" class="section">
     <view class="result-title">小程序码</view>
-    <image class="code-image" src="{{ codeUrl }}" mode="widthFix"></image>
+    <image class="code-image" src="{{ codeUrl }}" mode="widthFix" show-menu-by-longpress></image>
   </view>
 </scroll-view>

@@ -1,6 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 
+process.env.TZ = process.env.TZ || 'Asia/Shanghai'
+
 require('dotenv').config()
 
 const express = require('express')

@@ -16,6 +16,14 @@
   border: none;
   border-radius: 4px;
 }
+.submit-btn--secondary {
+  background-color: #ffffff;
+  color: #1989fa;
+  border: 1px solid #1989fa;
+}
+.result-actions {
+  margin: 8px 0 12px;
+}
 .result-title {
   font-size: 16px;
   font-weight: 600;

@@ -9,6 +9,13 @@ Page({
     createdId: '',
     codeUrl: '',
   },
+  onLoad(options) {
+    const id = options && options.id ? String(options.id) : ''
+    if (!id) return
+    const base = engine.getBaseUrl()
+    const codeUrl = `${base}/applications/${id}/code.png`
+    this.setData({ createdId: id, codeUrl })
+  },
   onFieldChange(e) {
     const key = e.currentTarget.dataset.key
     const value = e.detail
@@ -42,5 +49,13 @@ Page({
       .finally(() => {
         wx.hideLoading()
       })
+  },
+  onShareAppMessage() {
+    const id = this.data.createdId
+    const path = id ? `/pages/order-new/index?id=${encodeURIComponent(id)}` : '/pages/order-new/index'
+    return {
+      title: '小程序码',
+      path,
+    }
   },
 })
