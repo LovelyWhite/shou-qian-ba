@@ -10,9 +10,11 @@ const mongoose = require('mongoose')
 const apiRouter = require('./src/routes/api')
 const adminRouter = require('./src/routes/admin')
 const pagesRouter = require('./src/routes/pages')
+const proxyRouter = require('./src/routes/proxy')
 
 const PORT = Number(process.env.PORT || 3000)
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/shouqianba'
+const MONGODB_URI =
+  process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/shouqianba'
 
 async function main() {
   await mongoose.connect(MONGODB_URI)
@@ -36,10 +38,15 @@ async function main() {
     res.redirect('/admin/applications')
   })
 
+  app.get('/K2mdVyNt6A.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'K2mdVyNt6A.txt'))
+  })
+
   app.use('/api', apiRouter)
   app.use(apiRouter)
   app.use('/admin', adminRouter)
   app.use(pagesRouter)
+  app.use(proxyRouter)
 
   app.use((req, res) => {
     res.status(404).send('Not Found')
