@@ -6,6 +6,15 @@ const ExcelJS = require('exceljs')
 
 const Application = require('../models/Application')
 const wechat = require('../services/wechat')
+const { createApplicationCodePngHandler } = require('../utils/applicationCodePng')
+const {
+  ADMIN_PASSWORD,
+  ADMIN_USERNAME,
+  clearAuthCookie,
+  isAuthed,
+  safeNextUrl,
+  setAuthCookie,
+} = require('../utils/adminAuth')
 
 const router = express.Router()
 
@@ -13,7 +22,10 @@ function formatDate(value) {
   if (!value) return ''
   const date = value instanceof Date ? value : new Date(value)
   if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleString('zh-CN', { hour12: false, timeZone: 'Asia/Shanghai' })
+  return date.toLocaleString('zh-CN', {
+    hour12: false,
+    timeZone: 'Asia/Shanghai',
+  })
 }
 
 function statusText(status) {
@@ -21,10 +33,50 @@ function statusText(status) {
   return '未完成'
 }
 
+router.get('/login', (req, res) => {
+  if (isAuthed(req)) {
+    res.redirect(
+      safeNextUrl(req.query && req.query.next ? String(req.query.next) : ''),
+    )
+    return
+  }
+  const err = req.query && req.query.err ? String(req.query.err) : ''
+  const next = req.query && req.query.next ? String(req.query.next) : ''
+  res.render('admin/login', { title: '登录', err, next })
+})
+
+router.post('/login', (req, res) => {
+  const username = String((req.body && req.body.username) || '').trim()
+  const password = String((req.body && req.body.password) || '').trim()
+  const next = safeNextUrl(
+    String((req.body && req.body.next) || (req.query && req.query.next) || ''),
+  )
+
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const secure =
+      Boolean(req.secure) ||
+      String(req.get('x-forwarded-proto') || '').toLowerCase() === 'https'
+    setAuthCookie(res, secure)
+    res.redirect(next)
+    return
+  }
+
+  res.redirect(`/admin/login?err=1&next=${encodeURIComponent(next)}`)
+})
+
+router.get('/logout', (req, res) => {
+  const secure =
+    Boolean(req.secure) ||
+    String(req.get('x-forwarded-proto') || '').toLowerCase() === 'https'
+  clearAuthCookie(res, secure)
+  res.redirect('/admin/login')
+})
+
 router.get('/applications', async (req, res, next) => {
   try {
     const rawPage = req.query && req.query.page ? Number(req.query.page) : 1
-    const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
+    const page =
+      Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
     const pageSize = 10
 
     const total = await Application.countDocuments()
@@ -66,7 +118,9 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
     workbook.creator = 'shou-qian-ba'
     workbook.created = new Date()
 
-    const sheet = workbook.addWorksheet('申请列表', { views: [{ state: 'frozen', ySplit: 1 }] })
+    const sheet = workbook.addWorksheet('申请列表', {
+      views: [{ state: 'frozen', ySplit: 1 }],
+    })
     sheet.columns = [
       { header: '订单号', key: 'orderNo', width: 20 },
       { header: '更新时间', key: 'updatedAt', width: 20 },
@@ -83,7 +137,10 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
     ]
 
     sheet.getRow(1).font = { bold: true }
-    sheet.getColumn('addressDetail').alignment = { wrapText: true, vertical: 'top' }
+    sheet.getColumn('addressDetail').alignment = {
+      wrapText: true,
+      vertical: 'top',
+    }
     sheet.getColumn('remark').alignment = { wrapText: true, vertical: 'top' }
 
     for (const item of items) {
@@ -112,7 +169,7 @@ router.get('/applications/export.xlsx', async (req, res, next) => {
     const fileName = `applications_${new Date().toISOString().slice(0, 10)}.xlsx`
     res.setHeader(
       'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Cache-Control', 'no-store')
@@ -143,13 +200,6 @@ router.post('/applications', async (req, res, next) => {
       completedAt: null,
     })
 
-    const accept = String(req.get('accept') || '')
-    const wantsJson = accept.includes('application/json') || req.query.format === 'json'
-    if (wantsJson) {
-      res.json({ id: doc._id })
-      return
-    }
-
     res.redirect(`/admin/applications/${doc._id}`)
   } catch (err) {
     next(err)
@@ -169,55 +219,25 @@ router.get('/applications/:id', async (req, res, next) => {
   }
 })
 
-router.post('/applications/:id', async (req, res, next) => {
+router.post('/applications/:id/remark', async (req, res, next) => {
   try {
     const id = req.params.id
-    const body = req.body || {}
-    const remark = String(body.remark || '').trim()
-    const orderNo = String(body.orderNo || '').trim()
-    const merchantName = String(body.merchantName || '').trim()
-    const contact = String(body.contact || '').trim()
-    const areaCode = String(body.areaCode || '').trim()
-    const areaText = String(body.areaText || '').trim()
-    const addressDetail = String(body.addressDetail || '').trim()
-    const bankName = String(body.bankName || '').trim()
-    const status = body.status === 'completed' ? 'completed' : 'pending'
+    const remark = String((req.body && req.body.remark) || '').trim()
+    const rawPage = req.body && req.body.page ? Number(req.body.page) : 1
+    const page =
+      Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
 
-    const update = {
-      orderNo,
-      remark,
-      status,
-      merchantName,
-      contact,
-      areaCode,
-      areaText,
-      addressDetail,
-      bankName,
-      completedAt: status === 'completed' ? new Date() : null,
-    }
-
-    await Application.findByIdAndUpdate(id, update)
-    res.redirect(`/admin/applications/${id}`)
+    await Application.findByIdAndUpdate(id, { remark })
+    res.redirect(`/admin/applications?page=${page}&saved=1`)
   } catch (err) {
     next(err)
   }
 })
 
-router.get('/applications/:id/code.png', async (req, res, next) => {
-  try {
-    const id = req.params.id
-    const buf = await wechat.getWxaCodeUnlimited({
-      scene: id,
-      page: 'pages/index/index',
-      check_path: false,
-      env_version: 'trial',
-    })
-    res.setHeader('Content-Type', 'image/png')
-    res.send(buf)
-  } catch (err) {
-    next(err)
-  }
-})
+router.get(
+  '/applications/:id/code.png',
+  createApplicationCodePngHandler({ wechat }),
+)
 
 router.post('/applications/:id/delete', async (req, res, next) => {
   try {

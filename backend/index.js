@@ -9,10 +9,11 @@ const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 
-const apiRouter = require('./src/routes/api')
+const userRouter = require('./src/routes/user')
 const adminRouter = require('./src/routes/admin')
 const pagesRouter = require('./src/routes/pages')
 const proxyRouter = require('./src/routes/proxy')
+const { isAuthed, safeNextUrl } = require('./src/utils/adminAuth')
 
 const PORT = Number(process.env.PORT || 3000)
 const MONGODB_URI =
@@ -44,8 +45,29 @@ async function main() {
     res.sendFile(path.join(__dirname, 'public', 'K2mdVyNt6A.txt'))
   })
 
-  app.use('/api', apiRouter)
-  app.use(apiRouter)
+  app.use((req, res, next) => {
+    const reqPath = String(req.path || '')
+
+    if (!reqPath.startsWith('/admin')) {
+      next()
+      return
+    }
+
+    if (reqPath === '/admin/login' || reqPath === '/admin/logout') {
+      next()
+      return
+    }
+
+    if (isAuthed(req)) {
+      next()
+      return
+    }
+
+    const nextUrl = safeNextUrl(String(req.originalUrl || ''))
+    res.redirect(`/admin/login?next=${encodeURIComponent(nextUrl)}`)
+  })
+
+  app.use(userRouter)
   app.use('/admin', adminRouter)
   app.use(pagesRouter)
   app.use(proxyRouter)

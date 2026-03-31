@@ -16,8 +16,7 @@
           <th>订单号</th>
           <th>更新时间</th>
           <th>商户名称</th>
-          <th>联系方式</th>
-          <th>经营地址</th>
+          <th>备注</th>
           <th>小程序码</th>
           <th>状态</th>
           <th></th>
@@ -26,7 +25,7 @@
       <tbody>
         <% if (!items || items.length === 0) { %>
           <tr>
-            <td colspan="8" class="muted">暂无数据</td>
+            <td colspan="7" class="muted">暂无数据</td>
           </tr>
         <% } else { %>
           <% items.forEach(function(item) { %>
@@ -34,11 +33,16 @@
               <td><%= item.orderNo || '' %></td>
               <td><%= formatDate(item.updatedAt) %></td>
               <td><%= item.merchantName %></td>
-              <td><%= item.contact %></td>
-              <td><%= item.areaText %><%= item.addressDetail ? ' ' + item.addressDetail : '' %></td>
+              <td>
+                <form method="post" action="/admin/applications/<%= item._id %>/remark" style="display:flex;gap:8px;align-items:center">
+                  <input class="input" name="remark" value="<%= item.remark || '' %>" placeholder="备注" style="min-width:240px" />
+                  <input type="hidden" name="page" value="<%= pagination && pagination.page ? pagination.page : 1 %>" />
+                  <button class="btn btn--secondary" type="submit" style="min-width:65px;">保存</button>
+                </form>
+              </td>
               <td>
                 <a class="js-image-link" href="/applications/<%= item._id %>/code.png" rel="noreferrer" data-is-image="1">
-                  <img src="/applications/<%= item._id %>/code.png" alt="" style="width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px" />
+                  <img src="/admin/applications/<%= item._id %>/code.png" alt="" style="width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px" />
                 </a>
               </td>
               <td><%= statusText(item.status) %></td>
@@ -76,6 +80,8 @@
   <% } %>
 </main>
 
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
 <div class="img-preview" id="imgPreview" aria-hidden="true">
   <div class="img-preview__backdrop"></div>
   <div class="img-preview__panel" role="dialog" aria-modal="true">
@@ -84,6 +90,8 @@
 </div>
 
 <style>
+  .toast { position: fixed; left: 50%; top: 16px; transform: translateX(-50%); background: rgba(0,0,0,.82); color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 1100; opacity: 0; pointer-events: none; transition: opacity .16s ease; max-width: min(520px, calc(100vw - 24px)); text-align: center; }
+  .toast.is-open { opacity: 1; }
   .img-preview { position: fixed; inset: 0; display: none; z-index: 1000; }
   .img-preview.is-open { display: block; }
   .img-preview__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); }
@@ -93,6 +101,29 @@
 
 <script>
   (function () {
+    var toastTimer = null
+    var toastEl = document.getElementById('toast')
+
+    function showToast(message) {
+      if (!toastEl) return
+      toastEl.textContent = message
+      toastEl.classList.add('is-open')
+      if (toastTimer) window.clearTimeout(toastTimer)
+      toastTimer = window.setTimeout(function () {
+        toastEl.classList.remove('is-open')
+      }, 1600)
+    }
+
+    try {
+      var url = new URL(window.location.href)
+      if (url.searchParams.get('saved') === '1') {
+        showToast('保存成功')
+        url.searchParams.delete('saved')
+        var next = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash
+        window.history.replaceState(null, '', next)
+      }
+    } catch (e) {}
+
     var root = document.getElementById('imgPreview')
     var img = document.getElementById('imgPreviewImg')
     if (!root || !img) return
