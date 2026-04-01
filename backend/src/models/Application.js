@@ -38,4 +38,8 @@ const ApplicationSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+ApplicationSchema.index({ orderNo: 1 })
+ApplicationSchema.index({ merchantName: 1 })
+ApplicationSchema.index({ contact: 1 })
+
 module.exports = mongoose.model('Application', ApplicationSchema)

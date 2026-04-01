@@ -18,7 +18,7 @@
       <div class="detail-item">
         <div class="detail-item__k">状态</div>
         <div class="detail-item__v">
-          <span class="status-text"><%= item.status === 'completed' ? '已完成' : '未完成' %></span>
+          <span class="status-text <%= item.status === 'completed' ? 'status-text--completed' : 'status-text--pending' %>"><%= item.status === 'completed' ? '已完成' : '未完成' %></span>
         </div>
       </div>
       <div class="detail-item">
@@ -63,7 +63,9 @@
       <div class="detail-item detail-item--full">
         <div class="detail-item__k">二维码</div>
         <div class="detail-item__v detail-item__v--center">
-          <img class="qrcode__img" src="/admin/applications/<%= item._id %>/code.png" alt="" />
+          <a class="js-image-link" href="/admin/applications/<%= item._id %>/code.png" rel="noreferrer" data-is-image="1">
+            <img class="qrcode__img" src="/admin/applications/<%= item._id %>/code.png" alt="" />
+          </a>
         </div>
       </div>
     </div>

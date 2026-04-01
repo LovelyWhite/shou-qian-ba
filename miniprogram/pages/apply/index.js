@@ -67,7 +67,7 @@ Page({
 
     Promise.all(
       toUpload.map((f) => {
-        return engine.uploadFile(f.url).then((res) => {
+        return engine.uploadFile(f.url, this.data.applicationId).then((res) => {
           return { url: res.url, name: f.name, type: f.type }
         })
       })

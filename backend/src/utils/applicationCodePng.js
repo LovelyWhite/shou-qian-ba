@@ -16,6 +16,11 @@ function createApplicationCodePngHandler({
   return async (req, res, next) => {
     try {
       const applicationId = req.params.id ? String(req.params.id) : ''
+      if (!/^[a-fA-F0-9]{24}$/.test(applicationId)) {
+        res.status(400).send('Bad Request')
+        return
+      }
+
       const application = await Application.findById(applicationId)
         .select('orderNo')
         .lean()
@@ -31,10 +36,12 @@ function createApplicationCodePngHandler({
       }
 
       const uploadsDir = path.join(__dirname, '..', '..', 'uploads')
-      const codesDir = path.join(uploadsDir, 'codes')
-      if (!fs.existsSync(codesDir)) fs.mkdirSync(codesDir, { recursive: true })
+      const applicationDir = path.join(uploadsDir, applicationId)
+      if (!fs.existsSync(applicationDir)) {
+        fs.mkdirSync(applicationDir, { recursive: true })
+      }
 
-      const filePath = path.join(codesDir, `${orderNo}.png`)
+      const filePath = path.join(applicationDir, 'code.png')
       if (fs.existsSync(filePath)) {
         res.setHeader('Content-Type', 'image/png')
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
@@ -53,7 +60,7 @@ function createApplicationCodePngHandler({
       // 使用 canvas 在二维码下方添加文字 SN:xxxxxx
       const img = await loadImage(buf)
       const padding = 20 // 图片与文字间距
-      const fontSize = 24
+      const fontSize = 22
       const text = `SN:${orderNo}`
 
       // 计算画布尺寸

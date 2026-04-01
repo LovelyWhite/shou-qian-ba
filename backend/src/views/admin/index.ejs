@@ -3,6 +3,11 @@
 
 <main class="container container--fluid">
   <div class="row">
+    <form method="get" action="/admin/applications" style="display:flex;gap:8px;align-items:center">
+      <input class="input" name="q" value="<%= q || '' %>" placeholder="输入订单号 / 商家名称 / 联系方式" style="min-width:240px" />
+      <button class="btn btn--secondary" type="submit" style="min-width:65px;">搜索</button>
+      <a class="btn btn--ghost" href="/admin/applications" style="min-width:65px;">重置</a>
+    </form>
     <div class="row__actions">
       <a class="btn" href="/admin/applications/new">新建</a>
       <a class="btn btn--secondary" href="/admin/applications/export.xlsx">导出 Excel</a>
@@ -34,9 +39,10 @@
               <td><%= formatDate(item.updatedAt) %></td>
               <td><%= item.merchantName %></td>
               <td>
-                <form method="post" action="/admin/applications/<%= item._id %>/remark" style="display:flex;gap:8px;align-items:center">
+                <form class="js-remark-form" method="post" action="/admin/applications/<%= item._id %>/remark" style="display:flex;gap:8px;align-items:center">
                   <input class="input" name="remark" value="<%= item.remark || '' %>" placeholder="备注" style="min-width:240px" />
                   <input type="hidden" name="page" value="<%= pagination && pagination.page ? pagination.page : 1 %>" />
+                  <input type="hidden" name="q" value="<%= q || '' %>" />
                   <button class="btn btn--secondary" type="submit" style="min-width:65px;">保存</button>
                 </form>
               </td>
@@ -45,7 +51,9 @@
                   <img src="/admin/applications/<%= item._id %>/code.png" alt="" style="width:56px;height:56px;object-fit:contain;background:#fff;border-radius:6px" />
                 </a>
               </td>
-              <td><%= statusText(item.status) %></td>
+              <td>
+                <span class="<%= item.status === 'completed' ? 'status-text status-text--completed' : 'status-text status-text--pending' %>"><%= statusText(item.status) %></span>
+              </td>
               <td class="right">
                 <a class="btn btn--secondary" href="/admin/applications/<%= item._id %>">查看</a>
                 <form method="post" action="/admin/applications/<%= item._id %>/delete" style="display:inline;margin-left:8px" onsubmit="return confirm('确认删除？')">
@@ -65,13 +73,13 @@
         <span class="muted">共 <%= pagination.total %> 条，第 <%= pagination.page %> / <%= pagination.totalPages %> 页</span>
 
         <% if (pagination.page > 1) { %>
-          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page - 1 %>">上一页</a>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page - 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">上一页</a>
         <% } else { %>
           <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">上一页</span>
         <% } %>
 
         <% if (pagination.page < pagination.totalPages) { %>
-          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page + 1 %>">下一页</a>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page + 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">下一页</a>
         <% } else { %>
           <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">下一页</span>
         <% } %>
@@ -123,6 +131,42 @@
         window.history.replaceState(null, '', next)
       }
     } catch (e) {}
+
+    document.addEventListener('submit', function (e) {
+      var form = e.target
+      if (!form || !form.classList || !form.classList.contains('js-remark-form')) return
+      e.preventDefault()
+      var action = form.getAttribute('action') || ''
+      if (!action) return
+
+      var fd = new FormData(form)
+      var params = new URLSearchParams()
+      fd.forEach(function (value, key) {
+        if (typeof value === 'string') params.append(key, value)
+      })
+
+      fetch(action, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+        body: params.toString(),
+        credentials: 'same-origin',
+      })
+        .then(function (res) {
+          if (!res || !res.ok) throw new Error('request failed')
+          return res.json().catch(function () {
+            return {}
+          })
+        })
+        .then(function () {
+          showToast('保存成功')
+        })
+        .catch(function () {
+          showToast('保存失败')
+        })
+    })
 
     var root = document.getElementById('imgPreview')
     var img = document.getElementById('imgPreviewImg')

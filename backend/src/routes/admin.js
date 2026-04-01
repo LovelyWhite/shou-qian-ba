@@ -78,12 +78,19 @@ router.get('/applications', async (req, res, next) => {
     const page =
       Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
     const pageSize = 10
+    const q =
+      req.query && (req.query.q || req.query.orderNo)
+        ? String(req.query.q || req.query.orderNo).trim()
+        : ''
+    const filter = q
+      ? { $or: [{ orderNo: q }, { merchantName: q }, { contact: q }] }
+      : {}
 
-    const total = await Application.countDocuments()
+    const total = await Application.countDocuments(filter)
     const totalPages = Math.max(1, Math.ceil(total / pageSize))
     const safePage = Math.min(page, totalPages)
 
-    const items = await Application.find()
+    const items = await Application.find(filter)
       .sort({ createdAt: -1 })
       .skip((safePage - 1) * pageSize)
       .limit(pageSize)
@@ -93,6 +100,7 @@ router.get('/applications', async (req, res, next) => {
       items,
       formatDate,
       statusText,
+      q,
       pagination: {
         page: safePage,
         pageSize,
@@ -223,12 +231,9 @@ router.post('/applications/:id/remark', async (req, res, next) => {
   try {
     const id = req.params.id
     const remark = String((req.body && req.body.remark) || '').trim()
-    const rawPage = req.body && req.body.page ? Number(req.body.page) : 1
-    const page =
-      Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1
 
     await Application.findByIdAndUpdate(id, { remark })
-    res.redirect(`/admin/applications?page=${page}&saved=1`)
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }
@@ -242,23 +247,11 @@ router.get(
 router.post('/applications/:id/delete', async (req, res, next) => {
   try {
     const id = req.params.id
-    const doc = await Application.findById(id)
-    if (doc) {
-      const uploadsDir = path.join(__dirname, '..', '..', 'uploads')
-      const groups = doc.files || {}
-      for (const key of Object.keys(groups)) {
-        const list = Array.isArray(groups[key]) ? groups[key] : []
-        for (const f of list) {
-          const url = f && f.url
-          if (typeof url === 'string' && url.startsWith('/uploads/')) {
-            const filePath = path.join(uploadsDir, path.basename(url))
-            try {
-              await fs.promises.unlink(filePath)
-            } catch (e) {}
-          }
-        }
-      }
-    }
+    const uploadsDir = path.join(__dirname, '..', '..', 'uploads')
+    const applicationDir = path.join(uploadsDir, id)
+    try {
+      await fs.promises.rm(applicationDir, { recursive: true, force: true })
+    } catch (e) {}
     await Application.findByIdAndDelete(id)
     res.redirect('/admin/applications')
   } catch (err) {

@@ -382,6 +382,14 @@ body {
   color: var(--text);
 }
 
+.status-text--completed {
+  color: #16a34a;
+}
+
+.status-text--pending {
+  color: var(--muted);
+}
+
 .section-divider {
   height: 1px;
   background: var(--border);

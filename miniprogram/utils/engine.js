@@ -45,13 +45,14 @@ function request(options) {
   })
 }
 
-function uploadFile(filePath) {
+function uploadFile(filePath, applicationId) {
   const resolvedBaseUrl = getBaseUrl()
   if (!resolvedBaseUrl) return Promise.reject(new Error('未配置接口地址'))
 
   return new Promise((resolve, reject) => {
+    const query = applicationId ? `?applicationId=${encodeURIComponent(String(applicationId))}` : ''
     wx.uploadFile({
-      url: `${resolvedBaseUrl}/upload`,
+      url: `${resolvedBaseUrl}/upload${query}`,
       filePath,
       name: 'file',
       success(res) {

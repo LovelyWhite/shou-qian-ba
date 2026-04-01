@@ -11,9 +11,46 @@ const { createApplicationCodePngHandler } = require('../utils/applicationCodePng
 const Application = require('../models/Application')
 const router = express.Router()
 
+function isValidObjectId(value) {
+  return /^[a-fA-F0-9]{24}$/.test(String(value || ''))
+}
+
+async function requireApplication(req, res, next) {
+  try {
+    const applicationId =
+      req.query && req.query.applicationId ? String(req.query.applicationId) : ''
+    if (!applicationId) {
+      res.status(400).json({ error: '缺少 applicationId' })
+      return
+    }
+    if (!isValidObjectId(applicationId)) {
+      res.status(400).json({ error: 'applicationId 不合法' })
+      return
+    }
+
+    const exists = await Application.exists({ _id: applicationId })
+    if (!exists) {
+      res.status(404).json({ error: '订单不存在' })
+      return
+    }
+
+    req.applicationId = applicationId
+    next()
+  } catch (err) {
+    next(err)
+  }
+}
+
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, path.join(__dirname, '..', '..', 'uploads'))
+    const applicationId = req && req.applicationId ? String(req.applicationId) : ''
+    if (!isValidObjectId(applicationId)) {
+      cb(new Error('缺少 applicationId'))
+      return
+    }
+    const dir = path.join(__dirname, '..', '..', 'uploads', applicationId)
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    cb(null, dir)
   },
   filename(req, file, cb) {
     const ext = path.extname(file.originalname || '')
@@ -24,14 +61,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload', requireApplication, upload.single('file'), (req, res) => {
   if (!req.file) {
     res.status(400).json({ error: '缺少文件' })
     return
   }
-  const url = `/uploads/${req.file.filename}`
+  const applicationId = req.applicationId
+  const url = `/uploads/${applicationId}/${req.file.filename}`
   res.json({
     url,
+    applicationId,
     filename: req.file.filename,
     originalname: req.file.originalname,
     mimetype: req.file.mimetype,
