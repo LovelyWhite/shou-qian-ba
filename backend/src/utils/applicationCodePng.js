@@ -1,13 +1,26 @@
 const fs = require('fs')
 const path = require('path')
-const { createCanvas, loadImage } = require('canvas')
+const { createCanvas, loadImage, registerFont } = require('canvas')
 
 const Application = require('../models/Application')
+
+const registeredFonts = new Set()
+
+function ensureFontRegistered(fontPath, family) {
+  const key = `${family}@@${fontPath}`
+  if (registeredFonts.has(key)) return
+  if (!fontPath || !fs.existsSync(fontPath)) return
+  registerFont(fontPath, { family })
+  registeredFonts.add(key)
+}
 
 function createApplicationCodePngHandler({
   wechat,
   page = 'pages/index/index',
   envVersion = 'trial',
+  fontPath = process.env.CN_FONT_PATH ||
+    path.join(__dirname, '..', '..', 'public', 'fonts', 'heiti.ttf'),
+  fontFamily = 'CNLocal',
 } = {}) {
   if (!wechat || typeof wechat.getWxaCodeUnlimited !== 'function') {
     throw new Error('Invalid wechat client')
@@ -60,19 +73,24 @@ function createApplicationCodePngHandler({
       // 使用 canvas 在二维码下方添加文字 SN:xxxxxx
       const img = await loadImage(buf)
       const padding = 20 // 图片与文字间距
+      const bottomPadding = 16
       const fontSize = 22
       const text = `SN:${orderNo}`
 
       // 计算画布尺寸
-      const canvas = createCanvas(img.width, img.height + padding + fontSize)
+      const canvas = createCanvas(
+        img.width,
+        img.height + padding + fontSize + bottomPadding,
+      )
       const ctx = canvas.getContext('2d')
 
       // 绘制原始二维码
       ctx.drawImage(img, 0, 0)
 
       // 设置文字样式并绘制
+      ensureFontRegistered(fontPath, fontFamily)
       ctx.fillStyle = '#000'
-      ctx.font = `${fontSize}px Arial`
+      ctx.font = `${fontSize}px "${fontFamily}", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "SimHei", sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'top'
       ctx.fillText(text, canvas.width / 2, img.height + padding)

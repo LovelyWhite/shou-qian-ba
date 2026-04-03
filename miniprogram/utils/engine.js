@@ -1,5 +1,5 @@
-// const DEFAULT_BASE_URL = 'https://task.suxitech.cn'
-const DEFAULT_BASE_URL = 'http://192.168.8.231:3000'
+const DEFAULT_BASE_URL = 'https://task.suxitech.cn'
+// const DEFAULT_BASE_URL = 'http://192.168.8.231:3000'
 let baseUrl = DEFAULT_BASE_URL
 
 function setBaseUrl(url) {
