@@ -7,7 +7,7 @@
   </div>
 
   <div class="card">
-    <form method="post" action="/admin/applications">
+    <form id="createForm" method="post" action="/admin/applications">
       <div class="form-row">
         <label class="label" for="orderNo">订单号</label>
         <input class="input" id="orderNo" name="orderNo" value="<%= values.orderNo %>" placeholder="请输入订单号" />
@@ -24,5 +24,83 @@
     </form>
   </div>
 </main>
+
+<div class="img-preview" id="imgPreview" aria-hidden="true">
+  <div class="img-preview__backdrop"></div>
+  <div class="img-preview__panel" role="dialog" aria-modal="true">
+    <img class="img-preview__img" id="imgPreviewImg" alt="" />
+  </div>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('createForm')
+    var root = document.getElementById('imgPreview')
+    var img = document.getElementById('imgPreviewImg')
+    if (!form || !root || !img) return
+
+    function open(url) {
+      img.src = url
+      root.classList.add('is-open')
+      root.setAttribute('aria-hidden', 'false')
+      document.body.style.overflow = 'hidden'
+    }
+
+    function close() {
+      root.classList.remove('is-open')
+      root.setAttribute('aria-hidden', 'true')
+      img.removeAttribute('src')
+      document.body.style.overflow = ''
+      window.location.href = '/admin/applications'
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault()
+      var action = form.getAttribute('action') || ''
+      if (!action) return
+
+      var fd = new FormData(form)
+      var params = new URLSearchParams()
+      fd.forEach(function (value, key) {
+        if (typeof value === 'string') params.append(key, value)
+      })
+
+      fetch(action, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+        body: params.toString(),
+        credentials: 'same-origin',
+      })
+        .then(function (res) {
+          if (!res || !res.ok) throw new Error('request failed')
+          return res.json()
+        })
+        .then(function (data) {
+          var id = data && data.id ? String(data.id) : ''
+          if (!id) throw new Error('missing id')
+          open('/admin/applications/' + encodeURIComponent(id) + '/code.png')
+        })
+        .catch(function () {
+          window.alert('保存失败')
+        })
+    })
+
+    document.addEventListener('click', function (e) {
+      if (!root.classList.contains('is-open')) return
+      var target = e.target
+      if (root.contains(target)) {
+        e.preventDefault()
+        close()
+      }
+    })
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && root.classList.contains('is-open')) close()
+    })
+  })()
+</script>
 
 <%- include('../partials/foot') %>

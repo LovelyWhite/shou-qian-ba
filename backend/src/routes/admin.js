@@ -208,7 +208,7 @@ router.post('/applications', async (req, res, next) => {
       completedAt: null,
     })
 
-    res.redirect(`/admin/applications/${doc._id}`)
+    res.json({ id: doc._id })
   } catch (err) {
     next(err)
   }
