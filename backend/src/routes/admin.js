@@ -82,9 +82,14 @@ router.get('/applications', async (req, res, next) => {
       req.query && (req.query.q || req.query.orderNo)
         ? String(req.query.q || req.query.orderNo).trim()
         : ''
-    const filter = q
-      ? { $or: [{ orderNo: q }, { merchantName: q }, { contact: q }] }
-      : {}
+    const rawStatus =
+      req.query && req.query.status ? String(req.query.status).trim() : ''
+    const status =
+      rawStatus === 'pending' || rawStatus === 'completed' ? rawStatus : ''
+
+    const filter = {}
+    if (q) filter.$or = [{ orderNo: q }, { merchantName: q }, { contact: q }]
+    if (status) filter.status = status
 
     const total = await Application.countDocuments(filter)
     const totalPages = Math.max(1, Math.ceil(total / pageSize))
@@ -101,6 +106,7 @@ router.get('/applications', async (req, res, next) => {
       formatDate,
       statusText,
       q,
+      status,
       pagination: {
         page: safePage,
         pageSize,

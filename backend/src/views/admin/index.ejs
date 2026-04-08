@@ -4,6 +4,11 @@
 <main class="container container--fluid">
   <div class="row">
     <form method="get" action="/admin/applications" style="display:flex;gap:8px;align-items:center">
+      <select class="select" name="status" style="min-width:120px">
+        <option value="" <%= !status ? 'selected' : '' %>>全部</option>
+        <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>未完成</option>
+        <option value="completed" <%= status === 'completed' ? 'selected' : '' %>>已完成</option>
+      </select>
       <input class="input" name="q" value="<%= q || '' %>" placeholder="输入订单号 / 商家名称 / 联系方式" style="min-width:240px" />
       <button class="btn btn--secondary" type="submit" style="min-width:65px;">搜索</button>
       <a class="btn btn--ghost" href="/admin/applications" style="min-width:65px;">重置</a>
@@ -43,6 +48,7 @@
                   <input class="input" name="remark" value="<%= item.remark || '' %>" placeholder="备注" style="min-width:240px" />
                   <input type="hidden" name="page" value="<%= pagination && pagination.page ? pagination.page : 1 %>" />
                   <input type="hidden" name="q" value="<%= q || '' %>" />
+                  <input type="hidden" name="status" value="<%= status || '' %>" />
                   <button class="btn btn--secondary" type="submit" style="min-width:65px;">保存</button>
                 </form>
               </td>
@@ -73,13 +79,13 @@
         <span class="muted">共 <%= pagination.total %> 条，第 <%= pagination.page %> / <%= pagination.totalPages %> 页</span>
 
         <% if (pagination.page > 1) { %>
-          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page - 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">上一页</a>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page - 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %><%= status ? '&status=' + encodeURIComponent(status) : '' %>">上一页</a>
         <% } else { %>
           <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">上一页</span>
         <% } %>
 
         <% if (pagination.page < pagination.totalPages) { %>
-          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page + 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">下一页</a>
+          <a class="btn btn--secondary" href="/admin/applications?page=<%= pagination.page + 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %><%= status ? '&status=' + encodeURIComponent(status) : '' %>">下一页</a>
         <% } else { %>
           <span class="btn btn--secondary" style="opacity:.5;pointer-events:none">下一页</span>
         <% } %>
