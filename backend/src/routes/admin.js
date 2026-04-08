@@ -8,9 +8,8 @@ const Application = require('../models/Application')
 const wechat = require('../services/wechat')
 const { createApplicationCodePngHandler } = require('../utils/applicationCodePng')
 const {
-  ADMIN_PASSWORD,
-  ADMIN_USERNAME,
   clearAuthCookie,
+  authenticate,
   isAuthed,
   safeNextUrl,
   setAuthCookie,
@@ -52,11 +51,12 @@ router.post('/login', (req, res) => {
     String((req.body && req.body.next) || (req.query && req.query.next) || ''),
   )
 
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+  const auth = authenticate(username, password)
+  if (auth) {
     const secure =
       Boolean(req.secure) ||
       String(req.get('x-forwarded-proto') || '').toLowerCase() === 'https'
-    setAuthCookie(res, secure)
+    setAuthCookie(res, secure, auth)
     res.redirect(next)
     return
   }

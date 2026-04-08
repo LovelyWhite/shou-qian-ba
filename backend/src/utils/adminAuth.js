@@ -1,8 +1,11 @@
 const crypto = require('crypto')
+const fs = require('fs')
+const path = require('path')
 
 const COOKIE_NAME = 'sqb_admin_auth'
-const ADMIN_USERNAME = 'admin'
-const ADMIN_PASSWORD = 'admin1234'
+const USERS_FILE =
+  process.env.ADMIN_USERS_FILE ||
+  path.join(__dirname, '..', '..', 'admin-users.json')
 
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 const SECRET = process.env.ADMIN_AUTH_SECRET || process.env.COOKIE_SECRET || 'shou-qian-ba-dev'
@@ -46,8 +49,55 @@ function timingSafeEqualString(a, b) {
   return crypto.timingSafeEqual(bufA, bufB)
 }
 
-function issueToken() {
-  const payload = `${ADMIN_USERNAME}:${Date.now()}`
+function readUsersFile() {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return []
+    const raw = fs.readFileSync(USERS_FILE, 'utf8')
+    const parsed = JSON.parse(raw || '[]')
+    if (!Array.isArray(parsed)) return []
+
+    return parsed
+      .map((u) => ({
+        username: u && u.username ? String(u.username).trim() : '',
+        password: u && u.password != null ? String(u.password) : '',
+        disabled: Boolean(u && u.disabled),
+      }))
+      .filter((u) => u.username && !u.disabled)
+  } catch (e) {
+    return []
+  }
+}
+
+function getUser(username) {
+  const name = String(username || '').trim()
+  if (!name) return null
+  const users = readUsersFile()
+  return users.find((u) => u.username === name) || null
+}
+
+function calcUserVersion(user) {
+  return crypto
+    .createHash('sha256')
+    .update(`pw:${user && user.password ? user.password : ''}`)
+    .digest('hex')
+    .slice(0, 16)
+}
+
+function verifyPassword(inputPassword, storedPassword) {
+  const stored = String(storedPassword || '')
+  const input = String(inputPassword || '')
+  return timingSafeEqualString(input, stored)
+}
+
+function authenticate(username, password) {
+  const user = getUser(username)
+  if (!user) return null
+  if (!verifyPassword(password, user.password)) return null
+  return { username: user.username, version: calcUserVersion(user) }
+}
+
+function issueToken(username, version) {
+  const payload = `${username}:${version}:${Date.now()}`
   const sig = hmacSha256Base64Url(payload, SECRET)
   return `${payload}.${sig}`
 }
@@ -63,11 +113,19 @@ function verifyToken(token) {
   const expected = hmacSha256Base64Url(payload, SECRET)
   if (!timingSafeEqualString(sig, expected)) return false
 
-  const [username, tsText] = payload.split(':')
-  if (username !== ADMIN_USERNAME) return false
-  const ts = Number(tsText)
+  const parts = payload.split(':')
+  if (parts.length !== 3) return false
+  const username = parts[0]
+  const version = parts[1]
+  const ts = Number(parts[2])
+  if (!username || !version) return false
   if (!Number.isFinite(ts) || ts <= 0) return false
   if (Date.now() - ts > MAX_AGE_MS) return false
+
+  const user = getUser(username)
+  if (!user) return false
+  const expectedVersion = calcUserVersion(user)
+  if (!timingSafeEqualString(version, expectedVersion)) return false
 
   return true
 }
@@ -90,8 +148,13 @@ function setCookieHeader(res, cookie) {
   res.setHeader('Set-Cookie', [String(existing), cookie])
 }
 
-function setAuthCookie(res, secure) {
-  const token = issueToken()
+function setAuthCookie(res, secure, auth) {
+  const username = auth && auth.username ? String(auth.username) : ''
+  const version = auth && auth.version ? String(auth.version) : ''
+  if (!username || !version) {
+    throw new Error('Invalid auth')
+  }
+  const token = issueToken(username, version)
   const parts = [
     `${COOKIE_NAME}=${encodeURIComponent(token)}`,
     'Path=/',
@@ -123,10 +186,9 @@ function safeNextUrl(rawNext) {
 }
 
 module.exports = {
-  ADMIN_USERNAME,
-  ADMIN_PASSWORD,
   COOKIE_NAME,
   clearAuthCookie,
+  authenticate,
   isAuthed,
   safeNextUrl,
   setAuthCookie,
